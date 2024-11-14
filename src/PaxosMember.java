@@ -31,10 +31,40 @@ public abstract class PaxosMember {
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                new Thread(() -> handleMessage(clientSocket)).start();
+                new Thread(() -> handleMessageWithBehavior(clientSocket)).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void handleMessageWithBehavior(Socket clientSocket) {
+        try {
+            // Apply behavior based on member ID
+            if ("M1".equals(memberId)) {
+                // M1: Immediate response, no delay needed
+            } else if ("M2".equals(memberId)) {
+                // M2: Simulate poor connectivity with occasional message drop
+                if (shouldSkipResponse()) {
+                    System.out.println(memberId + " skipped a message due to poor connectivity.");
+                    return; // Skip processing this message
+                }
+                simulatePoorConnectivity(); // Delayed response
+            } else if ("M3".equals(memberId)) {
+                // M3: High chance of dropping messages due to intermittent connectivity
+                if (shouldDropMessage()) {
+                    System.out.println(memberId + " dropped a message due to intermittent connectivity.");
+                    return; // Exit without processing the message
+                }
+            } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
+                // M4-M9: Simulate busy schedule with varied random delay
+                simulateBusySchedule();
+            }
+
+            // Pass client socket to the specific message handler
+            handleMessage(clientSocket);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -43,13 +73,11 @@ public abstract class PaxosMember {
             Socket socket = new Socket(host, port);
             socket.setKeepAlive(true);  // Enable keep-alive to prevent timeouts
             peerConnections.put(peerId, socket);
-            System.out.println(memberId + " connected to " + peerId + " on port " + port);
         } catch (IOException e) {
             System.err.println(memberId + " failed to connect to " + peerId + " on port " + port);
             e.printStackTrace();
         }
     }
-
 
     public void broadcastMessage(String message) {
         for (Map.Entry<String, Socket> entry : peerConnections.entrySet()) {
@@ -67,5 +95,28 @@ public abstract class PaxosMember {
         }
     }
 
+    private void simulatePoorConnectivity() throws InterruptedException {
+        int delay = 3000 + random.nextInt(5000); // Delay between 3 to 8 seconds
+        System.out.println(memberId + " delaying response due to poor connectivity...");
+        Thread.sleep(delay);
+    }
+
+    private boolean shouldSkipResponse() {
+        // 30% chance that M2 will skip responding entirely
+        return random.nextDouble() < 0.3;
+    }
+
+    private boolean shouldDropMessage() {
+        // 50% chance that M3 will drop the message
+        return random.nextDouble() < 0.5;
+    }
+
+    private void simulateBusySchedule() throws InterruptedException {
+        int delay = 1000 + random.nextInt(2000); // Delay between 1 to 3 seconds
+        System.out.println(memberId + " delaying response due to busy schedule...");
+        Thread.sleep(delay);
+    }
     protected abstract void handleMessage(Socket clientSocket);
+
+
 }

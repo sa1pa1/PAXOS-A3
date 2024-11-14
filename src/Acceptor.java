@@ -5,10 +5,11 @@ import java.net.Socket;
 
 public class Acceptor extends PaxosMember {
     private String highestProposalId = null;
-    private String proposerId = null;
+    private String proposerId; // Dynamic proposer ID
 
-    public Acceptor(String memberId, int port) throws IOException {
+    public Acceptor(String memberId, int port, String proposerId) throws IOException {
         super(memberId, port);
+        this.proposerId = proposerId; // Set proposer ID during instantiation
     }
 
     @Override
@@ -24,7 +25,7 @@ public class Acceptor extends PaxosMember {
                         if (highestProposalId == null || proposalId.compareTo(highestProposalId) > 0) {
                             highestProposalId = proposalId;
                             System.out.println(memberId + " sending PROMISE for proposal: " + proposalId);
-                            sendMessage("PROMISE " + proposalId + " " + memberId, peerConnections.get("M1")); // Send to M1 only
+                            sendMessage("PROMISE " + proposalId + " " + memberId, peerConnections.get(proposerId)); // Send to the specified proposer
                         }
                     } else {
                         System.err.println(memberId + " received improperly formatted PREPARE message.");
@@ -36,12 +37,10 @@ public class Acceptor extends PaxosMember {
                     String[] parts = message.split(" ");
                     if (parts.length >= 2) {  // Check if the message is properly formatted
                         String proposalId = parts[1];
-                        System.out.println(memberId + " received ACCEPT for proposal: " + proposalId + ", sending ACCEPTED to proposer");
-
                         // Send the ACCEPTED message to proposer
-                        Socket learnerSocket = peerConnections.get("M1");
-                        if (learnerSocket != null) {
-                            sendMessage("ACCEPTED " + proposalId + " " + memberId, learnerSocket);
+                        Socket proposerSocket = peerConnections.get(proposerId);
+                        if (proposerSocket != null) {
+                            sendMessage("ACCEPTED " + proposalId + " " + memberId, proposerSocket);
                             System.out.println(memberId + " successfully sent ACCEPTED to proposer for proposal: " + proposalId);
                         } else {
                             System.err.println(memberId + " could not find connection to proposer for ACCEPTED message.");
@@ -51,7 +50,7 @@ public class Acceptor extends PaxosMember {
                     }
                 }
 
-                // Handle FINALIZE message
+                // Handle FINALISE message
                 if (message.startsWith("FINALISE")) {
                     String[] parts = message.split(" ");
                     if (parts.length >= 2) {  // Check if the message is properly formatted
@@ -65,5 +64,10 @@ public class Acceptor extends PaxosMember {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // Method to update the proposer ID if it changes
+    public void setProposerId(String proposerId) {
+        this.proposerId = proposerId;
     }
 }
