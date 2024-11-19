@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class Proposer extends PaxosMember {
+    public static boolean consensusReached = false;
     private final Set<String> promisesReceived = new HashSet<>();
     private final int proposalId; // Change from String to int
     final Map<String, Set<String>> acceptedProposals = new HashMap<>();
     private static final int TIMEOUT = 30000; // Timeout in milliseconds
     private static final int MAX_RETRIES = 2; // Maximum number of retries
     private int retryCount = 0; // Counter for retry attempts
-    private boolean consensusReached = false; // Flag to check if consensus has already been reached
 
     public Proposer(String memberId, int port, int proposalId) throws IOException {
         super(memberId, port);

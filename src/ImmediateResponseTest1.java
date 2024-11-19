@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-public class OneProposer {
+public class ImmediateResponseTest1 {
     public static void main(String[] args) {
         try {
             String proposerID = "M1";

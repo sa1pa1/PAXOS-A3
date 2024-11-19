@@ -1,3 +1,5 @@
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +14,8 @@ public class Acceptor extends PaxosMember {
 
     @Override
     protected void handleMessage(Socket clientSocket) {
+        if (Proposer.consensusReached) return; // Stop processing if consensus is reached
+
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
             String message;
             while ((message = in.readLine()) != null) {
@@ -32,11 +36,10 @@ public class Acceptor extends PaxosMember {
 
     private void handlePrepare(String message) {
         String[] parts = message.split(" ");
-        if (parts.length >= 3) { // Validate proposal ID and proposer ID
+        if (parts.length >= 3) {
             String proposalId = parts[1];
             String proposerIdFromMessage = parts[2];
 
-            // Check if the proposal ID is higher than the current highest
             if (highestProposalId == null || proposalId.compareTo(highestProposalId) > 0) {
                 highestProposalId = proposalId;
                 System.out.println(memberId + " sending PROMISE for proposal: " + proposalId + " to proposer: " + proposerIdFromMessage);
@@ -55,7 +58,7 @@ public class Acceptor extends PaxosMember {
 
     private void handleAccept(String message) {
         String[] parts = message.split(" ");
-        if (parts.length >= 3) { // Validate proposal ID and proposer ID
+        if (parts.length >= 3) {
             String proposalId = parts[1];
             String proposerIdFromMessage = parts[2];
 
@@ -74,9 +77,10 @@ public class Acceptor extends PaxosMember {
 
     private void handleFinalise(String message) {
         String[] parts = message.split(" ");
-        if (parts.length >= 2) { // Validate proposal ID
+        if (parts.length >= 2) {
             String finalizedProposalId = parts[1];
             System.out.println(memberId + " acknowledged election winner is: " + finalizedProposalId);
+            Proposer.consensusReached = true; // Stop further processing
         } else {
             System.err.println(memberId + " received improperly formatted FINALISE message: " + message);
         }
