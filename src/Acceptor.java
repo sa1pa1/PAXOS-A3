@@ -5,60 +5,24 @@ import java.net.Socket;
 
 public class Acceptor extends PaxosMember {
     private String highestProposalId = null;
-    private String proposerId; // Dynamic proposer ID
 
-    public Acceptor(String memberId, int port, String proposerId) throws IOException {
+    public Acceptor(String memberId, int port) throws IOException {
         super(memberId, port);
-        this.proposerId = proposerId; // Set proposer ID during instantiation
     }
 
     @Override
     protected void handleMessage(Socket clientSocket) {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
             String message;
-            while ((message = in.readLine()) != null) {  // Continuously read messages
-
+            while ((message = in.readLine()) != null) {
                 if (message.startsWith("PREPARE")) {
-                    String[] parts = message.split(" ");
-                    if (parts.length >= 2) {  // Check if the message is properly formatted
-                        String proposalId = parts[1];
-                        if (highestProposalId == null || proposalId.compareTo(highestProposalId) > 0) {
-                            highestProposalId = proposalId;
-                            System.out.println(memberId + " sending PROMISE for proposal: " + proposalId);
-                            sendMessage("PROMISE " + proposalId + " " + memberId, peerConnections.get(proposerId)); // Send to the specified proposer
-                        }
-                    } else {
-                        System.err.println(memberId + " received improperly formatted PREPARE message.");
-                    }
-                }
-
-                if (message.startsWith("ACCEPT")) {
-                    System.out.println(memberId + " processing ACCEPT message.");
-                    String[] parts = message.split(" ");
-                    if (parts.length >= 2) {  // Check if the message is properly formatted
-                        String proposalId = parts[1];
-                        // Send the ACCEPTED message to proposer
-                        Socket proposerSocket = peerConnections.get(proposerId);
-                        if (proposerSocket != null) {
-                            sendMessage("ACCEPTED " + proposalId + " " + memberId, proposerSocket);
-                            System.out.println(memberId + " successfully sent ACCEPTED to proposer for proposal: " + proposalId);
-                        } else {
-                            System.err.println(memberId + " could not find connection to proposer for ACCEPTED message.");
-                        }
-                    } else {
-                        System.err.println(memberId + " received improperly formatted ACCEPT message.");
-                    }
-                }
-
-                // Handle FINALISE message
-                if (message.startsWith("FINALISE")) {
-                    String[] parts = message.split(" ");
-                    if (parts.length >= 2) {  // Check if the message is properly formatted
-                        String finalizedProposalId = parts[1];
-                        System.out.println(memberId + " acknowledge election winner is " + finalizedProposalId);
-                    } else {
-                        System.err.println(memberId + " received improperly formatted FINALIZE message.");
-                    }
+                    handlePrepare(message);
+                } else if (message.startsWith("ACCEPT")) {
+                    handleAccept(message);
+                } else if (message.startsWith("FINALISE")) {
+                    handleFinalise(message);
+                } else {
+                    System.err.println(memberId + " received unknown message type: " + message);
                 }
             }
         } catch (IOException e) {
@@ -66,8 +30,55 @@ public class Acceptor extends PaxosMember {
         }
     }
 
-    // Method to update the proposer ID if it changes
-    public void setProposerId(String proposerId) {
-        this.proposerId = proposerId;
+    private void handlePrepare(String message) {
+        String[] parts = message.split(" ");
+        if (parts.length >= 3) { // Validate proposal ID and proposer ID
+            String proposalId = parts[1];
+            String proposerIdFromMessage = parts[2];
+
+            // Check if the proposal ID is higher than the current highest
+            if (highestProposalId == null || proposalId.compareTo(highestProposalId) > 0) {
+                highestProposalId = proposalId;
+                System.out.println(memberId + " sending PROMISE for proposal: " + proposalId + " to proposer: " + proposerIdFromMessage);
+
+                Socket proposerSocket = peerConnections.get(proposerIdFromMessage);
+                if (proposerSocket != null) {
+                    sendMessage("PROMISE " + proposalId + " " + memberId, proposerSocket);
+                } else {
+                    System.err.println(memberId + " could not find connection to proposer: " + proposerIdFromMessage);
+                }
+            }
+        } else {
+            System.err.println(memberId + " received improperly formatted PREPARE message: " + message);
+        }
+    }
+
+    private void handleAccept(String message) {
+        String[] parts = message.split(" ");
+        if (parts.length >= 3) { // Validate proposal ID and proposer ID
+            String proposalId = parts[1];
+            String proposerIdFromMessage = parts[2];
+
+            System.out.println(memberId + " received ACCEPT for proposal: " + proposalId + ", sending ACCEPTED to proposer: " + proposerIdFromMessage);
+
+            Socket proposerSocket = peerConnections.get(proposerIdFromMessage);
+            if (proposerSocket != null) {
+                sendMessage("ACCEPTED " + proposalId + " " + memberId, proposerSocket);
+            } else {
+                System.err.println(memberId + " could not find connection to proposer: " + proposerIdFromMessage);
+            }
+        } else {
+            System.err.println(memberId + " received improperly formatted ACCEPT message: " + message);
+        }
+    }
+
+    private void handleFinalise(String message) {
+        String[] parts = message.split(" ");
+        if (parts.length >= 2) { // Validate proposal ID
+            String finalizedProposalId = parts[1];
+            System.out.println(memberId + " acknowledged election winner is: " + finalizedProposalId);
+        } else {
+            System.err.println(memberId + " received improperly formatted FINALISE message: " + message);
+        }
     }
 }

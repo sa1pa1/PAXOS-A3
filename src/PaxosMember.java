@@ -95,8 +95,10 @@ public abstract class PaxosMember {
         }
     }
 
+    protected abstract void handleMessage(Socket clientSocket);
+
     private void simulatePoorConnectivity() throws InterruptedException {
-        int delay = 3000 + random.nextInt(5000); // Delay between 3 to 8 seconds
+        int delay = 3000 + random.nextInt(5000); // Delay between 3 and 8 seconds
         System.out.println(memberId + " delaying response due to poor connectivity...");
         Thread.sleep(delay);
     }
@@ -112,11 +114,9 @@ public abstract class PaxosMember {
     }
 
     private void simulateBusySchedule() throws InterruptedException {
-        int delay = 1000 + random.nextInt(2000); // Delay between 1 to 3 seconds
+        int delay = 1000 + random.nextInt(2000); // Delay between 1 and 3 seconds
         System.out.println(memberId + " delaying response due to busy schedule...");
         Thread.sleep(delay);
     }
-    protected abstract void handleMessage(Socket clientSocket);
-
 
 }
