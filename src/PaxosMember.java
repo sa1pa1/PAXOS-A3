@@ -1,16 +1,12 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public abstract class PaxosMember {
     final String memberId;
-    private final ServerSocket serverSocket;
+    protected final ServerSocket serverSocket;
     protected final Map<String, Socket> peerConnections = new HashMap<>();
 
     // Constructor
@@ -28,12 +24,16 @@ public abstract class PaxosMember {
     }
 
     private void acceptConnections() {
-        while (true) {
+        while (!serverSocket.isClosed()) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 new Thread(() -> handleMessage(clientSocket)).start();
             } catch (IOException e) {
-                e.printStackTrace();
+                if (serverSocket.isClosed()) {
+                    System.out.println(memberId + " server socket closed.");
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -57,16 +57,36 @@ public abstract class PaxosMember {
 
     public void sendMessage(String message, Socket socket) {
         try {
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println(message);
-            System.out.println(memberId + " sent message: " + message + " to " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort());
+            socket.getOutputStream().write((message + "\n").getBytes());
+            System.out.println(memberId + " sent message: " + message);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public void close() throws IOException {
+        System.out.println(memberId + " is shutting down...");
+
+        // Close all peer connections
+        for (Socket socket : peerConnections.values()) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Clear the peerConnections map
+        peerConnections.clear();
+
+        // Close the server socket
+        if (!serverSocket.isClosed()) {
+            serverSocket.close();
+        }
+
+        System.out.println(memberId + " has shut down.");
+    }
+
     // Abstract method to handle incoming messages
     protected abstract void handleMessage(Socket clientSocket);
-
-
 }

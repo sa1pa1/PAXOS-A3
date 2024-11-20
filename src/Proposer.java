@@ -10,15 +10,20 @@ import java.util.Set;
 public class Proposer extends PaxosMember {
     public static boolean consensusReached = false;
     private final Set<String> promisesReceived = new HashSet<>();
-    private final int proposalId; // Change from String to int
-    final Map<String, Set<String>> acceptedProposals = new HashMap<>();
+    private static int globalHighestProposalId = 0;
+    private int proposalId; // Change from String to int
+    private final Map<String, Set<String>> acceptedProposals = new HashMap<>();
     private static final int TIMEOUT = 30000; // Timeout in milliseconds
     private static final int MAX_RETRIES = 2; // Maximum number of retries
     private int retryCount = 0; // Counter for retry attempts
 
-    public Proposer(String memberId, int port, int proposalId) throws IOException {
+
+    public Proposer(String memberId, int port, int initialProposalId) throws IOException {
         super(memberId, port);
-        this.proposalId = proposalId;
+        this.proposalId = initialProposalId;
+        synchronized (Proposer.class) {
+            globalHighestProposalId = Math.max(globalHighestProposalId, initialProposalId);
+        }
     }
 
     public void propose() {
@@ -30,8 +35,14 @@ public class Proposer extends PaxosMember {
         }
 
         retryCount++;
-        System.out.println(memberId + " proposing " + proposalId + " (Attempt " + retryCount + ")");
-
+        if (retryCount > 1) {
+            synchronized (Proposer.class) {
+                proposalId = globalHighestProposalId + 1; // Increment based on highest known proposal ID
+                globalHighestProposalId = proposalId;
+            }
+            promisesReceived.clear(); // Clear promises for the new proposal attempt
+        }
+        System.out.println(memberId + " proposing new proposalID " + proposalId + " (Attempt " + retryCount + ")");
         // Broadcast PREPARE message with proposal ID and proposer ID
         broadcastMessage("PREPARE " + proposalId + " " + memberId);
 
@@ -55,13 +66,14 @@ public class Proposer extends PaxosMember {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
             String message;
             while ((message = in.readLine()) != null) { // Continuously read messages
-
                 if (message.startsWith("PROMISE")) {
                     String[] parts = message.split(" ");
                     String senderId = parts[2];
                     handlePromise(senderId);
                 }
-
+                if (message.startsWith("PREPARE")) {
+                    handlePrepareFromAnotherProposer(message);
+                }
                 if (message.startsWith("ACCEPTED")) {
                     String[] parts = message.split(" ");
                     String proposalId = parts[1];
@@ -70,20 +82,16 @@ public class Proposer extends PaxosMember {
                     acceptedProposals.putIfAbsent(proposalId, new HashSet<>());
                     acceptedProposals.get(proposalId).add(acceptorId);
 
-
                     // Check if a majority of ACCEPTED messages has been reached
-                    synchronized (this) {  // Ensure FINALISE is broadcast only once
-                        if (!consensusReached && acceptedProposals.get(proposalId).size() >= 5) { // Majority for 9 acceptors including proposer
+                    synchronized (this) { // Ensure FINALISE is broadcast only once
+                        if (!consensusReached && acceptedProposals.get(proposalId).size() >= 5) {
                             consensusReached = true; // Set the flag to true once consensus is reached
                             broadcastMessage("FINALISE " + proposalId + " " + memberId);
 
-
                             // Print election winner as the last statement
                             System.out.println();
-                            System.out.println("Election winner is " + memberId );
-
+                            System.out.println("Election winner is " + memberId);
                         }
-
                     }
                 }
 
@@ -124,12 +132,24 @@ public class Proposer extends PaxosMember {
         System.out.println(memberId + " recorded PROMISE from " + senderId);
 
         // Check if a majority has been reached
-        if (promisesReceived.size() >= 4) { // Majority for 8 acceptors
+        if (promisesReceived.size() >= 5) { // Majority for 9 acceptors
             System.out.println(memberId + " received majority PROMISES, broadcasting ACCEPT.");
 
             // Broadcast ACCEPT message with proposalId and proposerId
             broadcastMessage("ACCEPT " + proposalId + " " + memberId);
         }
+    }
+
+    private void handlePrepareFromAnotherProposer(String message) {
+        String[] parts = message.split(" ");
+        int receivedProposalId = Integer.parseInt(parts[1]);
+
+        // Update the global highest proposal ID
+        synchronized (Proposer.class) {
+            globalHighestProposalId = Math.max(globalHighestProposalId, receivedProposalId);
+        }
+
+        System.out.println(memberId + " detected higher proposal ID: " + receivedProposalId);
     }
 
 }

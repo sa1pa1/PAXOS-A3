@@ -10,7 +10,7 @@ public class ImmediateResponseTest2 {
             // Array to hold acceptors and their IDs
             Acceptor[] acceptors = new Acceptor[7];
             String[] acceptorIds = { "M3","M4", "M5", "M6", "M7", "M8", "M9" };
-            int startingPort = 5003;
+            int startingPort = 5004;
 
             // Create and start each acceptor, assigning them unique ports
             for (int i = 0; i < acceptors.length; i++) {
