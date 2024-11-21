@@ -1,12 +1,22 @@
-/*Conccurent proposal of M1 and M2, where M2 have higher proposal ID. This simulates the differences that M2 will win
-* when they are at the cafe, though is only 30% of time. */
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
+/**
+ * Test 2b: Two concurrent proposers with suggested delay profiles
+ * Conccurent proposal of M1 and M2, where M2 have higher proposal ID. This simulates the differences that M2 will win
+ * when they are at the cafe, though is only 30% of time.
+ *
+ **/
 
 public class MemberDelayTest2 {
     public static void main(String[] args) {
         try {
+            //LOGGING COMMENDMENT
+            System.out.println("############################################################");
+            System.out.println("TEST 2.B: TWO CONCURRENT PROPOSERS SUGGESTED DELAY PROFILES");
+            System.out.println("############################################################");
+
             // Initialize proposers with unique and increasing proposal IDs
             Proposer proposerM1 = new Proposer("M1", 5001, 1) {
                 @Override
@@ -43,13 +53,11 @@ public class MemberDelayTest2 {
                 new Thread(acceptors[i]::start).start();
             }
 
-            // Delay to allow connections to establish
-            Thread.sleep(5000); // Wait 5 seconds before starting proposers
-
             // Start proposers
             new Thread(proposerM1::start).start();
             new Thread(proposerM2::start).start();
 
+            //********** ESTABLISHING CONNECTIONS ************//
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
                 acceptor.connectToOthers("M1", "localhost", 5001); // Connect to Proposer M1
@@ -61,24 +69,34 @@ public class MemberDelayTest2 {
                 proposerM1.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
                 proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
+            //*************************************************//
 
             // Start proposing
             proposerM1.propose();
             proposerM2.propose();
 
-            Thread.sleep(10000); //allow execution to finish
+            // allow execution
+            Thread.sleep(8000);
 
+            //releasing ports
+            System.out.println("RELEASING PORTS");
             proposerM1.close();
             proposerM2.close();
             for (Acceptor acceptor : acceptors) {
                 acceptor.close();
             }
 
+            //LOGGING COMPLETION
+            System.out.println("##################################");
+            System.out.println("TEST 2.B COMPLETED");
+            System.out.println("##################################");
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    /*----------------------------------Behavoiurs methods -------------------------------------------*/
     private static void applyDelayBehavior(String memberId) {
         try {
             if ("M1".equals(memberId)) {
@@ -129,4 +147,6 @@ public class MemberDelayTest2 {
         System.out.println(memberId + " delaying response due to busy schedule...");
         Thread.sleep(delay);
     }
+    /*----------------------------------------------------------------------------------------------*/
+
 }
