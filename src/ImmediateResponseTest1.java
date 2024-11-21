@@ -25,12 +25,12 @@ public class ImmediateResponseTest1 {
 
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
-                acceptor.connectToPeer(proposerID, "localhost", 5001);
+                acceptor.connectToOthers(proposerID, "localhost", 5001);
             }
 
             // Connect proposers to each acceptor
             for (int i = 0; i < acceptors.length; i++) {
-                proposerM1.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
+                proposerM1.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
 
             // Start M2's proposal immediately

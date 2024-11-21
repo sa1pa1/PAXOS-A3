@@ -69,16 +69,16 @@ public class MemberDelayTest3 {
 
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
-                acceptor.connectToPeer("M1", "localhost", 5001); // Connect to Proposer M1
-                acceptor.connectToPeer("M2", "localhost", 5002); // Connect to Proposer M2
-                acceptor.connectToPeer("M3", "localhost", 5003);
+                acceptor.connectToOthers("M1", "localhost", 5001); // Connect to Proposer M1
+                acceptor.connectToOthers("M2", "localhost", 5002); // Connect to Proposer M2
+                acceptor.connectToOthers("M3", "localhost", 5003);
             }
 
             // Connect proposers to each acceptor
             for (int i = 0; i < acceptors.length; i++) {
-                proposerM1.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM2.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM3.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
+                proposerM1.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM3.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
 
             // Start proposing

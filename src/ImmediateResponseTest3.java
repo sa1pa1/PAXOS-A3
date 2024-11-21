@@ -21,16 +21,16 @@ public class ImmediateResponseTest3 {
 
             // Connect each acceptor to all proposers
             for (Acceptor acceptor : acceptors) {
-                acceptor.connectToPeer("M1", "localhost", 5001);
-                acceptor.connectToPeer("M2", "localhost", 5002);
-                acceptor.connectToPeer("M3", "localhost", 5003);
+                acceptor.connectToOthers("M1", "localhost", 5001);
+                acceptor.connectToOthers("M2", "localhost", 5002);
+                acceptor.connectToOthers("M3", "localhost", 5003);
             }
 
             // Connect all proposers to each acceptor
             for (int i = 0; i < acceptors.length; i++) {
-                proposerM1.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM2.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM3.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
+                proposerM1.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM3.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
 
             // Create threads to propose concurrently

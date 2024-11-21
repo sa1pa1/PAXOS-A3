@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class PaxosMember {
-    final String memberId;
-    protected final ServerSocket serverSocket;
-    protected final Map<String, Socket> peerConnections = new HashMap<>();
+    final String memberId;// Unique identifier for the Paxos member
+    protected final ServerSocket serverSocket;// Server socket for listening to incoming connections
+    protected final Map<String, Socket> Connections = new HashMap<>();// Map of peer IDs to their respective sockets
 
-    // Constructor
+    /**
+     * Constructor to initialize a Paxos member.
+     * Sets up a server socket for listening to incoming connections.
+     */
     public PaxosMember(String memberId, int port) throws IOException {
         this.memberId = memberId;
         this.serverSocket = new ServerSocket(port);
@@ -19,10 +22,17 @@ public abstract class PaxosMember {
         new Thread(this::acceptConnections).start();
     }
 
+    /**
+     * Starts the thread to accept incoming connections. Used in testing, called explicitly
+     */
     public void start() {
         new Thread(this::acceptConnections).start();
     }
 
+    /**
+     * Continuously accepts incoming connections
+     * Spawns thread to handle client connections
+     */
     private void acceptConnections() {
         while (!serverSocket.isClosed()) {
             try {
@@ -36,24 +46,34 @@ public abstract class PaxosMember {
             }
         }
     }
-
-    public void connectToPeer(String peerId, String host, int port) {
+    /**
+     * Connects to a peer using the specified host and port.
+     * Establishes a socket connection and stores it in the peerConnections map.
+     * Used in testing, explicitly called
+     */
+    public void connectToOthers(String peerId, String host, int port) {
         try {
             Socket socket = new Socket(host, port);
             socket.setKeepAlive(true);
-            peerConnections.put(peerId, socket);
+            Connections.put(peerId, socket);
         } catch (IOException e) {
             System.err.println(memberId + " failed to connect to " + peerId + " on port " + port);
             e.printStackTrace();
         }
     }
 
+    /**
+     * Broadcasts a message to all connected peers.
+     */
     public void broadcastMessage(String message) {
-        for (Map.Entry<String, Socket> entry : peerConnections.entrySet()) {
+        for (Map.Entry<String, Socket> entry : Connections.entrySet()) {
             sendMessage(message, entry.getValue());
         }
     }
 
+    /**
+     * Sends a message to a specific peer.
+     */
     public void sendMessage(String message, Socket socket) {
         try {
             socket.getOutputStream().write((message + "\n").getBytes());
@@ -63,10 +83,14 @@ public abstract class PaxosMember {
         }
     }
 
+    /**
+     * Closes all peer connections and the server socket.
+     * Used in testing, explicitly called
+     */
     public void close() throws IOException {
 
         // Close all peer connections
-        for (Socket socket : peerConnections.values()) {
+        for (Socket socket : Connections.values()) {
             try {
                 socket.close();
             } catch (IOException e) {
@@ -75,15 +99,17 @@ public abstract class PaxosMember {
         }
 
         // Clear the peerConnections map
-        peerConnections.clear();
+        Connections.clear();
 
         // Close the server socket
         if (!serverSocket.isClosed()) {
             serverSocket.close();
         }
-
     }
 
-    // Abstract method to handle incoming messages
+    /**
+     * Abstract method to handle incoming messages.
+     * Implemented by subclasses to define specific message handling logic.
+     */
     protected abstract void handleMessage(Socket clientSocket);
 }

@@ -65,16 +65,16 @@ public class ShutdownTest3 {
 
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
-                acceptor.connectToPeer("M1", "localhost", 5001); // Connect to Proposer M1
-                acceptor.connectToPeer("M2", "localhost", 5002); // Connect to Proposer M2
-                acceptor.connectToPeer("M3", "localhost", 5003);
+                acceptor.connectToOthers("M1", "localhost", 5001); // Connect to Proposer M1
+                acceptor.connectToOthers("M2", "localhost", 5002); // Connect to Proposer M2
+                acceptor.connectToOthers("M3", "localhost", 5003);
             }
 
             // Connect proposers to each acceptor
             for (int i = 0; i < acceptors.length; i++) {
-                proposerM1.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM2.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM3.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
+                proposerM1.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
+                proposerM3.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
 
             // Schedule concurrent proposals
@@ -95,7 +95,7 @@ public class ShutdownTest3 {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }, 500, TimeUnit.MILLISECONDS); // Shut down M2 after 0.5 second
+                }, 500, TimeUnit.MILLISECONDS); // Shut down M2 after 5.5 second
             });
 
             scheduler.execute(() -> {
@@ -113,10 +113,10 @@ public class ShutdownTest3 {
             });
 
             // Wait for the test to complete
-            scheduler.awaitTermination(20, TimeUnit.SECONDS);
+            scheduler.awaitTermination(18, TimeUnit.SECONDS);
             scheduler.shutdown();
 
-            Thread.sleep(20000);
+            Thread.sleep(18000);
             proposerM1.close();
             proposerM2.close();
             proposerM3.close();
