@@ -90,13 +90,18 @@ _______
 > - This test simulate that when M2 proposes then shuts down. Acceptors no longer able to make further acceptances as M1 has a lower proposal ID.
 > - M1 then retry with a higher proposalID. To test this run:
 > -       java ShutdownTest1  
->   **In this case, M1 will win**
+>   **EXPECTED OUTPUT: M1 should win.**
 
 >### Test 3.b: Three concurrent proposers, one shuts down
 > - In this test, we have 3 proposers, M1, M2 and M3. M3 has the highest proposalID.
 > - When M3 shuts down, M1 and M2 will propose new proposal ID.
 > > If M1 retries later than M2, M1 wins  
 > > If M2 retries later than M1, M2 wins
+> > 
+> Notably, it is possible when M1 retries first and has lower proposalID than M2.
+> Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID.
+>>
+
 > - To test this, run:  
 > -       java ShutdownTest2   
 
