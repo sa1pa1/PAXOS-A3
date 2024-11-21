@@ -40,7 +40,7 @@ public class Acceptor extends PaxosMember {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -58,7 +58,7 @@ public class Acceptor extends PaxosMember {
             //Get proposerID
             String proposerId = parts[2];
 
-            //checking and sending promise to highest proposal
+            //checking and sending promise to the highest proposal
             if (highestProposalId == null || proposalId.compareTo(highestProposalId) > 0) {
                 highestProposalId = proposalId;
                 System.out.println(memberId + " sending PROMISE for proposal: " + proposalId + " to proposer: " + proposerId);

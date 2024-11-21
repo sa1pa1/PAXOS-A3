@@ -6,7 +6,7 @@ import java.io.IOException;
 public class ImmediateResponseTest2 {
     public static void main(String[] args) {
         try {
-            //LOGGING COMMENDMENT
+            //TESTING COMMENCE
             System.out.println("#######################################################");
             System.out.println("TEST 1.B: TWO CONCURRENT PROPOSERS, IMMEDIATE RESPONSE");
             System.out.println("#######################################################");
@@ -42,13 +42,9 @@ public class ImmediateResponseTest2 {
             //*************************************************//
 
             // Create threads to propose concurrently
-            Thread proposerThread1 = new Thread(() -> {
-                proposerM1.propose();
-            });
+            Thread proposerThread1 = new Thread(proposerM1::propose);
 
-            Thread proposerThread2 = new Thread(() -> {
-                proposerM2.propose();
-            });
+            Thread proposerThread2 = new Thread(proposerM2::propose);
 
             // Start all proposer threads concurrently
             proposerThread1.start();
@@ -76,7 +72,7 @@ public class ImmediateResponseTest2 {
             System.out.println("##################################");
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }

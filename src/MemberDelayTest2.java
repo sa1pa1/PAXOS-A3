@@ -1,10 +1,10 @@
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Random;
+
 /**
  * Test 2b: Two concurrent proposers with suggested delay profiles
- * Conccurent proposal of M1 and M2, where M2 have higher proposal ID. This simulates the differences that M2 will win
+ * Concurrent proposal of M1 and M2, where M2 have higher proposal ID. This simulates the differences that M2 will win
  * when they are at the cafe, though is only 30% of time.
  *
  **/
@@ -12,7 +12,7 @@ import java.util.Random;
 public class MemberDelayTest2 {
     public static void main(String[] args) {
         try {
-            //LOGGING COMMENDMENT
+            //TESTING COMMENCE
             System.out.println("############################################################");
             System.out.println("TEST 2.B: TWO CONCURRENT PROPOSERS SUGGESTED DELAY PROFILES");
             System.out.println("############################################################");
@@ -21,7 +21,7 @@ public class MemberDelayTest2 {
             Proposer proposerM1 = new Proposer("M1", 5001, 1) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
-                    applyDelayBehavior("M1");
+                    DelayBehaviour.applyDelay("M1");
                     super.handleMessage(clientSocket);
                 }
             };
@@ -29,7 +29,7 @@ public class MemberDelayTest2 {
             Proposer proposerM2 = new Proposer("M2", 5002, 2) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
-                    applyDelayBehavior("M2");
+                    DelayBehaviour.applyDelay("M2");
                     super.handleMessage(clientSocket);
                 }
             };
@@ -45,7 +45,7 @@ public class MemberDelayTest2 {
                 acceptors[i] = new Acceptor(acceptorId, startingPort + i) {
                     @Override
                     protected void handleMessage(Socket clientSocket) {
-                        applyDelayBehavior(acceptorId);
+                        DelayBehaviour.applyDelay(acceptorId);
                         super.handleMessage(clientSocket);
                     }
                 };
@@ -92,61 +92,8 @@ public class MemberDelayTest2 {
             System.out.println("##################################");
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
-
-    /*----------------------------------Behavoiurs methods -------------------------------------------*/
-    private static void applyDelayBehavior(String memberId) {
-        try {
-            if ("M1".equals(memberId)) {
-                // M1: Instant response
-                System.out.println(memberId + " is responding immediately.");
-            } else if ("M2".equals(memberId)) {
-                // M2: Poor connectivity with occasional instant response
-                if (Math.random() < 0.3) {
-                    // Simulate being at the café with instant responses
-                    System.out.println(memberId + " is responding instantly (at café).");
-                } else {
-                    // Simulate poor connectivity with delays
-                    simulateLargeDelay(memberId);
-                }
-
-            } else if ("M3".equals(memberId)) {
-                // M3: High chance of dropping messages
-                if (NoResponse()) {
-                    System.out.println(memberId + " is not responding. Maybe camping :))");
-                    return;
-                }
-                else if (!NoResponse()) {
-                    simulateSmallDelay(memberId);
-                }
-            } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
-                // M4-M9: Simulate busy schedules
-                simulateSmallDelay(memberId);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void simulateLargeDelay(String memberId) throws InterruptedException {
-        int delay = 4000 + new Random().nextInt(5000); // Delay between 4 to 9 seconds
-        System.out.println(memberId + " Very delayed, in the hills");
-        Thread.sleep(delay);
-    }
-
-
-    private static boolean NoResponse() {
-        // 30% chance to drop the message
-        return Math.random() < 0.3;
-    }
-
-    private static void simulateSmallDelay(String memberId) throws InterruptedException {
-        int delay = 1000 + new Random().nextInt(2000); // Delay between 1 to 3 seconds
-        System.out.println(memberId + " delaying response due to busy schedule...");
-        Thread.sleep(delay);
-    }
-    /*----------------------------------------------------------------------------------------------*/
 
 }

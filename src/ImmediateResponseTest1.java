@@ -6,7 +6,7 @@ import java.io.IOException;
 public class ImmediateResponseTest1 {
     public static void main(String[] args) {
         try {
-            //LOGGING COMMENDMENT
+            //TESTING COMMENCE
             System.out.println("##################################");
             System.out.println("TEST 1.A: ONE PROPOSER, IMMEDIATE RESPONSE");
             System.out.println("##################################");
@@ -59,8 +59,11 @@ public class ImmediateResponseTest1 {
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        {
 
 
         }

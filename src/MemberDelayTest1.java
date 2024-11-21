@@ -1,7 +1,7 @@
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Random;
+
 /**
  * Test 1a: One proposer, with delays
  **/
@@ -9,7 +9,7 @@ import java.util.Random;
 public class MemberDelayTest1 {
     public static void main(String[] args) {
         try {
-            //LOGGING COMMENDMENT
+            //TESTING COMMENCE
             System.out.println("#####################################################");
             System.out.println("TEST 2.A: ONE PROPOSER WITH SUGGESTED DELAY PROFILES");
             System.out.println("#####################################################");
@@ -18,7 +18,7 @@ public class MemberDelayTest1 {
             Proposer proposerM1 = new Proposer("M1", 5001, 2) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
-                    applyDelayBehavior("M1");
+                    DelayBehaviour.applyDelay("M1");
                     super.handleMessage(clientSocket);
                 }
             };
@@ -34,7 +34,7 @@ public class MemberDelayTest1 {
                 acceptors[i] = new Acceptor(acceptorId, startingPort + i) {
                     @Override
                     protected void handleMessage(Socket clientSocket) {
-                        applyDelayBehavior(acceptorId);
+                        DelayBehaviour.applyDelay(acceptorId);
                         super.handleMessage(clientSocket);
                     }
                 };
@@ -75,61 +75,8 @@ public class MemberDelayTest1 {
             System.out.println("##################################");
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
-
- /*----------------------------------Behavoiurs methods -------------------------------------------*/
-    private static void applyDelayBehavior(String memberId) {
-        try {
-            if ("M1".equals(memberId)) {
-                // M1: Instant response
-                System.out.println(memberId + " is responding immediately.");
-            } else if ("M2".equals(memberId)) {
-                // M2: Poor connectivity with occasional instant response
-                if (Math.random() < 0.3) {
-                    // Simulate being at the café with instant responses
-                    System.out.println(memberId + " is responding instantly (at café).");
-                } else {
-                    // Simulate poor connectivity with delays
-                    simulateLargeDelay(memberId);
-                }
-
-            } else if ("M3".equals(memberId)) {
-                // M3: High chance of dropping messages
-                if (NoResponse()) {
-                    System.out.println(memberId + " is not responding. Maybe camping :))");
-                    return;
-                }
-                else if (!NoResponse()) {
-                    simulateSmallDelay(memberId);
-                }
-            } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
-                // M4-M9: Simulate busy schedules
-                simulateSmallDelay(memberId);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void simulateLargeDelay(String memberId) throws InterruptedException {
-        int delay = 4000 + new Random().nextInt(5000); // Delay between 4 to 9 seconds
-        System.out.println(memberId + " Very delayed, in the hills");
-        Thread.sleep(delay);
-    }
-
-
-    private static boolean NoResponse() {
-        // 30% chance to drop the message
-        return Math.random() < 0.3;
-    }
-
-    private static void simulateSmallDelay(String memberId) throws InterruptedException {
-        int delay = 1000 + new Random().nextInt(2000); // Delay between 1 to 3 seconds
-        System.out.println(memberId + " delaying response due to busy schedule...");
-        Thread.sleep(delay);
-    }
-    /*----------------------------------------------------------------------------------------------*/
 
 }
