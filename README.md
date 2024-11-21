@@ -89,7 +89,7 @@ _______
 > - In this test, we have two proposers, M1 and M2. Where M2 has the higher proposalID.
 > - This test simulate that when M2 proposes then shuts down. Acceptors no longer able to make further acceptances as M1 has a lower proposal ID.
 > - M1 then retry with a higher proposalID. To test this run:
-> -       java MemberDelayTest4  
+> -       java ShutdownTest1  
 >   **In this case, M1 will win**
 
 >### Test 3.b: Three concurrent proposers, one shuts down
@@ -98,21 +98,21 @@ _______
 > > If M1 retries later than M2, M1 wins  
 > > If M2 retries later than M1, M2 wins
 > - To test this, run:  
-> -       java MemberDelayTest5   
+> -       java ShutdownTest2   
 
 >### Test 3.c: Three concurrent proposers, two shuts down
 > - In this test, we have 3 proposers, M1, M2 and M3.
 > - M2 and M3 shuts down concurrently.
 > - M1 will retry with higher proposalID and win.
 > - To test this, run:
-> -       java MemberDelayTest6  
+> -       java ShutdownTest3  
 
 
 >### Test 3.d: Three concurrent proposers, varying shutdown
 > - In this test, we have 3 proposers, M1, M2 and M3.
 > - M3 shuts down first, then 5 seconds later M2 shuts down. This is to show the beahviour of failover when they shut down at different times.
 > - To test this, run:
-> -       java MemberDelayTest7
+> -       java ShutdownTest4
 
 **Criteria reached:**
 - [x] Paxos implementation works with suggested profiles and when either M2 or M2 goes offline.
