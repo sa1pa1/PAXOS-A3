@@ -12,7 +12,7 @@ public class ImmediateResponseTest1 {
             System.out.println("##################################");
             String proposerID = "M1";
 
-            // Initialize M1
+            // Initialise M1
             Proposer proposerM1 = new Proposer(proposerID, 5001, 1);
 
             // Array to hold acceptors and their IDs

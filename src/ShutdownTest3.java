@@ -1,6 +1,4 @@
-/*Concurrent proposals with M1, M2, M3 with M3 being the highest then shuts down, now M2 and M1 will compete in which
- * M2 will win as it has the second highest proposal id
- * sometimes M1 can win due to M2 being in the hills*/
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
@@ -8,10 +6,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *Test 3c: Three concurrent proposers, two shuts down
+ *M2 and M3 shuts down concurrently.
+ *M1 will retry with higher proposalID and win.
+ **/
+
 public class ShutdownTest3 {
     public static void main(String[] args) {
         try {
-            // Initialize proposers with unique and increasing proposal IDs
+            //LOGGING COMMENDMENT
+            System.out.println("####################################################");
+            System.out.println("TEST 3.C: THREE CONCURRENT PROPOSERS, TWO SHUTS DOWN");
+            System.out.println("####################################################");
+
+            // Initialise proposers with unique and increasing proposal IDs
             Proposer proposerM1 = new Proposer("M1", 5001, 1) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
@@ -56,13 +65,14 @@ public class ShutdownTest3 {
             }
 
             // Delay to allow connections to establish
-            Thread.sleep(2000); // Wait 3 seconds before starting proposers
+            Thread.sleep(500);
 
             // Start proposers
             new Thread(proposerM1::start).start();
             new Thread(proposerM2::start).start();
             new Thread(proposerM3::start).start();
 
+            //********** ESTABLISHING CONNECTIONS ************//
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
                 acceptor.connectToOthers("M1", "localhost", 5001); // Connect to Proposer M1
@@ -76,6 +86,8 @@ public class ShutdownTest3 {
                 proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
                 proposerM3.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
+            //*************************************************//
+
 
             // Schedule concurrent proposals
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
@@ -87,7 +99,7 @@ public class ShutdownTest3 {
             scheduler.execute(() -> {
                 proposerM2.propose();
 
-                // Shut down M3 immediately after proposing
+                // Shut down M3
                 scheduler.schedule(() -> {
                     System.out.println("Shutting down M2...");
                     try {
@@ -95,7 +107,7 @@ public class ShutdownTest3 {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }, 500, TimeUnit.MILLISECONDS); // Shut down M2 after 5.5 second
+                }, 500, TimeUnit.MILLISECONDS); // Shut down M2 after 0.5 second
             });
 
             scheduler.execute(() -> {
@@ -112,11 +124,13 @@ public class ShutdownTest3 {
                 }, 500, TimeUnit.MILLISECONDS); // Shut down M3 after 0.5 second
             });
 
-            // Wait for the test to complete
+            // allow execution
             scheduler.awaitTermination(18, TimeUnit.SECONDS);
             scheduler.shutdown();
-
             Thread.sleep(18000);
+
+            //releasing ports
+            System.out.println("RELEASING PORTS");
             proposerM1.close();
             proposerM2.close();
             proposerM3.close();
@@ -124,11 +138,17 @@ public class ShutdownTest3 {
                 acceptor.close();
             }
 
+            //LOGGING COMPLETION
+            System.out.println("##################################");
+            System.out.println("TEST 3.C COMPLETED");
+            System.out.println("##################################");
+
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
-
+    /*----------------------------------Behavoiurs methods -------------------------------------------*/
     private static void applyDelayBehavior(String memberId) {
         try {
             if ("M1".equals(memberId)) {
@@ -175,4 +195,6 @@ public class ShutdownTest3 {
         System.out.println(memberId + " delaying response due to busy schedule...");
         Thread.sleep(delay);
     }
+    /*----------------------------------------------------------------------------------------------*/
+
 }

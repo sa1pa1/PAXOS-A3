@@ -17,7 +17,7 @@ public class MemberDelayTest2 {
             System.out.println("TEST 2.B: TWO CONCURRENT PROPOSERS SUGGESTED DELAY PROFILES");
             System.out.println("############################################################");
 
-            // Initialize proposers with unique and increasing proposal IDs
+            // Initialise proposers with unique and increasing proposal IDs
             Proposer proposerM1 = new Proposer("M1", 5001, 1) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {

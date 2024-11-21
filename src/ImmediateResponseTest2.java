@@ -11,7 +11,7 @@ public class ImmediateResponseTest2 {
             System.out.println("TEST 1.B: TWO CONCURRENT PROPOSERS, IMMEDIATE RESPONSE");
             System.out.println("#######################################################");
 
-            // Initialize three proposers with unique and increasing proposal IDs
+            // Initialise three proposers with unique and increasing proposal IDs
             Proposer proposerM1 = new Proposer("M1", 5001, 2);
             Proposer proposerM2 = new Proposer("M2", 5002, 4);
 
