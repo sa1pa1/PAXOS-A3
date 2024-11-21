@@ -98,7 +98,7 @@ _______
 > > If M1 retries later than M2, M1 wins  
 > > If M2 retries later than M1, M2 wins
 > > 
-> It is possible when M1 retries first and has lower proposalID than M2.
+> Notably, it is possible when M1 retries first and has lower proposalID than M2.
 > Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID.
 >>
 
