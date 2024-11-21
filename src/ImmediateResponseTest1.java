@@ -35,10 +35,18 @@ public class ImmediateResponseTest1 {
 
             // Start M2's proposal immediately
             proposerM1.propose();
+            Thread.sleep(3000);
+            proposerM1.close();
+            for (Acceptor acceptor : acceptors) {
+                acceptor.close();
+            }
 
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+
+
         }
     }
 }

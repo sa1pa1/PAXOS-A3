@@ -1,21 +1,14 @@
-/*This simulates when M1, M2 and M3 proposes, however their connectivity may differ for each election run
-* In this test, we will simulate M1 with the lowest proposalID then M2 and M3 (highest)
-* This test will show that M2 and M3 have differing chances of winning, that is if M2 is in the adelaide hills and
-* M3 is not camping, then M3 will win.
-* If M2 is at the cafe, M2 will win
-* If both M2 is in the hills and M3 is camping, M1 will win despite having the smallest proposalID.
-
-/*Concurrent proposal of M1 and M2, where M2 have higher proposal ID. This simulates the differences that M2 will win
- * when they are at the cafe, though is only 30% of time. */
-
-/*NOTE: this test is more important than testing with members M4-M9 as they are not interested in becoming council president.*/
-/* Test this at least 5 times to obtain all three scenarios*/
-
+/*Concurrent proposals with M1, M2, M3 with M3 being the highest then shuts down, now M2 and M1 will compete in which
+* M2 will win as it has the second highest proposal id
+* sometimes M1 can win due to M2 being in the hills*/
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class MemberDelayTest4 {
+public class ShutdownTest2 {
     public static void main(String[] args) {
         try {
             // Initialize proposers with unique and increasing proposal IDs
@@ -27,14 +20,15 @@ public class MemberDelayTest4 {
                 }
             };
 
-            Proposer proposerM2 = new Proposer("M2", 5002, 3) {
+            Proposer proposerM2 = new Proposer("M2", 5002, 2) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
                     applyDelayBehavior("M2");
                     super.handleMessage(clientSocket);
                 }
             };
-            Proposer proposerM3 = new Proposer("M3", 5003, 2) {
+
+            Proposer proposerM3 = new Proposer("M3", 5003, 3) {
                 @Override
                 protected void handleMessage(Socket clientSocket) {
                     applyDelayBehavior("M3");
@@ -42,10 +36,9 @@ public class MemberDelayTest4 {
                 }
             };
 
-
             // Array to hold acceptors and their IDs
             Acceptor[] acceptors = new Acceptor[6];
-            String[] acceptorIds = { "M4", "M5", "M6", "M7", "M8", "M9"};
+            String[] acceptorIds = {"M4", "M5", "M6", "M7", "M8", "M9"};
             int startingPort = 5004;
 
             // Create and start each acceptor, assigning them unique ports
@@ -63,7 +56,7 @@ public class MemberDelayTest4 {
             }
 
             // Delay to allow connections to establish
-            Thread.sleep(5000); // Wait 5 seconds before starting proposers
+            Thread.sleep(2000); // Wait 3 seconds before starting proposers
 
             // Start proposers
             new Thread(proposerM1::start).start();
@@ -84,13 +77,42 @@ public class MemberDelayTest4 {
                 proposerM3.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
             }
 
-            // Start proposing
-            proposerM1.propose();
-            proposerM2.propose();
-            proposerM3.propose();
+            // Schedule concurrent proposals
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
-            Thread.sleep(5000);
+            scheduler.execute(() -> {
+                proposerM1.propose();
+            });
 
+            scheduler.execute(() -> {
+                proposerM2.propose();
+            });
+
+            scheduler.execute(() -> {
+                proposerM3.propose();
+
+                // Shut down M3 immediately after proposing
+                scheduler.schedule(() -> {
+                    System.out.println("Shutting down M3...");
+                    try {
+                        proposerM3.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, 500, TimeUnit.MILLISECONDS); // Shut down M2 after 1 second
+            });
+
+            // Wait for the test to complete
+            scheduler.awaitTermination(20, TimeUnit.SECONDS);
+            scheduler.shutdown();
+
+            Thread.sleep(20000);
+            proposerM1.close();
+            proposerM2.close();
+            proposerM3.close();
+            for (Acceptor acceptor : acceptors) {
+                acceptor.close();
+            }
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -111,16 +133,13 @@ public class MemberDelayTest4 {
                     // Simulate poor connectivity with delays
                     simulateLargeDelay(memberId);
                 }
-
             } else if ("M3".equals(memberId)) {
                 // M3: High chance of dropping messages
                 if (NoResponse()) {
                     System.out.println(memberId + " is not responding. Maybe camping :))");
                     return;
                 }
-                else if (!NoResponse()) {
-                    simulateSmallDelay(memberId);
-                }
+                simulateSmallDelay(memberId);
             } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
                 // M4-M9: Simulate busy schedules
                 simulateSmallDelay(memberId);
@@ -136,7 +155,6 @@ public class MemberDelayTest4 {
         Thread.sleep(delay);
     }
 
-
     private static boolean NoResponse() {
         // 30% chance to drop the message
         return Math.random() < 0.3;
@@ -148,4 +166,3 @@ public class MemberDelayTest4 {
         Thread.sleep(delay);
     }
 }
-

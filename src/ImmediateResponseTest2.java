@@ -4,8 +4,8 @@ public class ImmediateResponseTest2 {
     public static void main(String[] args) {
         try {
             // Initialize three proposers with unique and increasing proposal IDs
-            Proposer proposerM1 = new Proposer("M1", 5001, 4);
-            Proposer proposerM2 = new Proposer("M2", 5002, 2);
+            Proposer proposerM1 = new Proposer("M1", 5001, 2);
+            Proposer proposerM2 = new Proposer("M2", 5002, 4);
 
             // Array to hold acceptors and their IDs
             Acceptor[] acceptors = new Acceptor[7];
@@ -47,12 +47,18 @@ public class ImmediateResponseTest2 {
             proposerThread1.start();
             proposerThread2.start();
 
+            Thread.sleep(3000); // allow execution
 
             // Wait for all threads to finish
             proposerThread1.join();
             proposerThread2.join();
 
-
+            proposerM1.close();
+            proposerM2.close();
+            // Close all acceptors
+            for (Acceptor acceptor : acceptors) {
+                acceptor.close();
+            }
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

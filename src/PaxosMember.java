@@ -30,7 +30,6 @@ public abstract class PaxosMember {
                 new Thread(() -> handleMessage(clientSocket)).start();
             } catch (IOException e) {
                 if (serverSocket.isClosed()) {
-                    System.out.println(memberId + " server socket closed.");
                 } else {
                     e.printStackTrace();
                 }
@@ -65,7 +64,6 @@ public abstract class PaxosMember {
     }
 
     public void close() throws IOException {
-        System.out.println(memberId + " is shutting down...");
 
         // Close all peer connections
         for (Socket socket : peerConnections.values()) {
@@ -84,7 +82,6 @@ public abstract class PaxosMember {
             serverSocket.close();
         }
 
-        System.out.println(memberId + " has shut down.");
     }
 
     // Abstract method to handle incoming messages

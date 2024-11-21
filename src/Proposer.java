@@ -6,15 +6,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class Proposer extends PaxosMember {
     public static boolean consensusReached = false;
     private final Set<String> promisesReceived = new HashSet<>();
     private static int globalHighestProposalId = 0;
+    private static final CountDownLatch latch = new CountDownLatch(1); // Shared across all proposers
     private int proposalId; // Change from String to int
     private final Map<String, Set<String>> acceptedProposals = new HashMap<>();
     private static final int TIMEOUT = 30000; // Timeout in milliseconds
-    private static final int MAX_RETRIES = 2; // Maximum number of retries
+//    private static final int MAX_RETRIES = 3; // Maximum number of retries
     private int retryCount = 0; // Counter for retry attempts
 
 
@@ -27,10 +30,7 @@ public class Proposer extends PaxosMember {
     }
 
     public void propose() {
-        if (consensusReached || retryCount >= MAX_RETRIES) {
-            if (retryCount >= MAX_RETRIES) {
-                System.out.println(memberId + " reached max retry attempts without consensus.");
-            }
+        if (consensusReached ) {
             return; // Exit if consensus is already reached or max retries exceeded
         }
 
@@ -49,15 +49,19 @@ public class Proposer extends PaxosMember {
         // Start a timer for collecting promises
         new Thread(() -> {
             try {
-                Thread.sleep(TIMEOUT);
-                if (!consensusReached && promisesReceived.size() < 5) { // Majority check for 8 acceptors
-                    System.out.println(memberId + " did not receive a majority within timeout, retrying proposal.");
-                    propose(); // Retry the proposal
+                // Wait for timeout or latch signal
+                if (!latch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                    if (!consensusReached && promisesReceived.size() < 5) {
+                        System.out.println(memberId + " did not receive a majority within timeout, retrying proposal.");
+                        propose(); // Retry the proposal
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
+
+
     }
 
     @Override
@@ -88,9 +92,13 @@ public class Proposer extends PaxosMember {
                             consensusReached = true; // Set the flag to true once consensus is reached
                             broadcastMessage("FINALISE " + proposalId + " " + memberId);
 
+                            latch.countDown(); // Signal that consensus has been reached
                             // Print election winner as the last statement
                             System.out.println();
                             System.out.println("Election winner is " + memberId);
+
+
+                            return; // Exit immediately
                         }
                     }
                 }
@@ -151,5 +159,6 @@ public class Proposer extends PaxosMember {
 
         System.out.println(memberId + " detected higher proposal ID: " + receivedProposalId);
     }
+
 
 }

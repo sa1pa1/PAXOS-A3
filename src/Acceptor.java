@@ -85,4 +85,5 @@ public class Acceptor extends PaxosMember {
             System.err.println(memberId + " received improperly formatted FINALISE message: " + message);
         }
     }
+
 }

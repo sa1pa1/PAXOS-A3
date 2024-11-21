@@ -50,12 +50,20 @@ public class ImmediateResponseTest3 {
             proposerThread1.start();
             proposerThread2.start();
             proposerThread3.start();
+            Thread.sleep(3000);
 
             // Wait for all threads to finish
             proposerThread1.join();
             proposerThread2.join();
             proposerThread3.join();
 
+            proposerM1.close();
+            proposerM2.close();
+            proposerM3.close();
+            // Close all acceptors
+            for (Acceptor acceptor : acceptors) {
+                acceptor.close();
+            }
 
 
         } catch (IOException | InterruptedException e) {

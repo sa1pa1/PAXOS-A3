@@ -15,18 +15,11 @@ public class MemberDelayTest1 {
                 }
             };
 
-            Proposer proposerM2 = new Proposer("M2", 5002, 4) {
-                @Override
-                protected void handleMessage(Socket clientSocket) {
-                    applyDelayBehavior("M2");
-                    super.handleMessage(clientSocket);
-                }
-            };
 
             // Array to hold acceptors and their IDs
-            Acceptor[] acceptors = new Acceptor[7];
-            String[] acceptorIds = {"M3", "M4", "M5", "M6", "M7", "M8", "M9"};
-            int startingPort = 5003;
+            Acceptor[] acceptors = new Acceptor[8];
+            String[] acceptorIds = {"M2","M3", "M4", "M5", "M6", "M7", "M8", "M9"};
+            int startingPort = 5002;
 
             // Create and start each acceptor, assigning them unique ports
             for (int i = 0; i < acceptors.length; i++) {
@@ -42,28 +35,30 @@ public class MemberDelayTest1 {
                 new Thread(acceptors[i]::start).start();
             }
 
-            // Delay to allow connections to establish
-            Thread.sleep(5000); // Wait 5 seconds before starting proposers
 
             // Start proposers
             new Thread(proposerM1::start).start();
-            new Thread(proposerM2::start).start();
 
             // Connect each acceptor to both proposers
             for (Acceptor acceptor : acceptors) {
                 acceptor.connectToPeer("M1", "localhost", 5001); // Connect to Proposer M1
-                acceptor.connectToPeer("M2", "localhost", 5002); // Connect to Proposer M2
             }
 
             // Connect proposers to each acceptor
             for (int i = 0; i < acceptors.length; i++) {
                 proposerM1.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
-                proposerM2.connectToPeer(acceptorIds[i], "localhost", startingPort + i);
             }
 
             // Start proposing
             proposerM1.propose();
-            proposerM2.propose();
+
+            Thread.sleep(8000); //wait for propose to complete.
+
+            proposerM1.close();
+
+            for (Acceptor acceptor : acceptors) {
+                acceptor.close();
+            }
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
