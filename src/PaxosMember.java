@@ -41,8 +41,9 @@ public abstract class PaxosMember {
                 new Thread(() -> handleMessage(clientSocket)).start();
             } catch (IOException e) {
                 if (serverSocket.isClosed()) {
+                    return;
                 } else {
-                    e.printStackTrace();
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }
@@ -59,7 +60,7 @@ public abstract class PaxosMember {
             Connections.put(peerId, socket);
         } catch (IOException e) {
             System.err.println(memberId + " failed to connect to " + peerId + " on port " + port);
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -80,7 +81,7 @@ public abstract class PaxosMember {
             socket.getOutputStream().write((message + "\n").getBytes());
             System.out.println(memberId + " sent message: " + message);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -95,7 +96,7 @@ public abstract class PaxosMember {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Error: " + e.getMessage());
             }
         }
 

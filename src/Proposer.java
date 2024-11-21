@@ -73,7 +73,7 @@ public class Proposer extends PaxosMember {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Error: " + e.getMessage());
             }
         }).start();
     }
@@ -128,7 +128,7 @@ public class Proposer extends PaxosMember {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -178,7 +178,6 @@ public class Proposer extends PaxosMember {
     /**
      * Handles a PREPARE message from another Proposer.
      * Updates the global highest proposal ID based on the received proposal.
-     *
      * Track the global highest proposalID, upon retrying, will send a higher proposalID.
      */
     private void TrackHighestProposalID(String message) {
