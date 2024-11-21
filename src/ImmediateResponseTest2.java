@@ -1,8 +1,16 @@
 import java.io.IOException;
-
+/**
+ * Test 1.b: Concurrent: Two proposers
+ *
+ **/
 public class ImmediateResponseTest2 {
     public static void main(String[] args) {
         try {
+            //LOGGING COMMENDMENT
+            System.out.println("#######################################################");
+            System.out.println("TEST 1.B: TWO CONCURRENT PROPOSERS, IMMEDIATE RESPONSE");
+            System.out.println("#######################################################");
+
             // Initialize three proposers with unique and increasing proposal IDs
             Proposer proposerM1 = new Proposer("M1", 5001, 2);
             Proposer proposerM2 = new Proposer("M2", 5002, 4);
@@ -17,7 +25,7 @@ public class ImmediateResponseTest2 {
                 acceptors[i] = new Acceptor(acceptorIds[i], startingPort + i);
                 new Thread(acceptors[i]::start).start();
             }
-
+            //********** ESTABLISHING CONNECTIONS ************//
             // Connect each acceptor to all proposers
             for (Acceptor acceptor : acceptors) {
                 acceptor.connectToOthers("M1", "localhost", 5001);
@@ -31,6 +39,7 @@ public class ImmediateResponseTest2 {
                 proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
 
             }
+            //*************************************************//
 
             // Create threads to propose concurrently
             Thread proposerThread1 = new Thread(() -> {
@@ -41,24 +50,30 @@ public class ImmediateResponseTest2 {
                 proposerM2.propose();
             });
 
-
-
             // Start all proposer threads concurrently
             proposerThread1.start();
             proposerThread2.start();
 
+            // allow execution
             Thread.sleep(3000); // allow execution
 
             // Wait for all threads to finish
             proposerThread1.join();
             proposerThread2.join();
 
+            //releasing ports
+            System.out.println("RELEASING PORTS");
             proposerM1.close();
             proposerM2.close();
             // Close all acceptors
             for (Acceptor acceptor : acceptors) {
                 acceptor.close();
             }
+
+            //LOGGING COMPLETION
+            System.out.println("##################################");
+            System.out.println("TEST 1.B COMPLETED");
+            System.out.println("##################################");
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

@@ -3,10 +3,15 @@ import java.io.IOException;
 public class ImmediateResponseTest3 {
     public static void main(String[] args) {
         try {
+            //LOGGING COMMENDMENT
+            System.out.println("#######################################################");
+            System.out.println("TEST 1.C: THREE CONCURRENT PROPOSERS, IMMEDIATE RESPONSE");
+            System.out.println("#######################################################");
+
             // Initialize three proposers with unique and increasing proposal IDs
-            Proposer proposerM1 = new Proposer("M1", 5001, 4);
+            Proposer proposerM1 = new Proposer("M1", 5001, 1);
             Proposer proposerM2 = new Proposer("M2", 5002, 2);
-            Proposer proposerM3 = new Proposer("M3", 5003, 9);
+            Proposer proposerM3 = new Proposer("M3", 5003, 3);
 
             // Array to hold acceptors and their IDs
             Acceptor[] acceptors = new Acceptor[6];
@@ -19,6 +24,7 @@ public class ImmediateResponseTest3 {
                 new Thread(acceptors[i]::start).start();
             }
 
+            //********** ESTABLISHING CONNECTIONS ************//
             // Connect each acceptor to all proposers
             for (Acceptor acceptor : acceptors) {
                 acceptor.connectToOthers("M1", "localhost", 5001);
@@ -32,6 +38,7 @@ public class ImmediateResponseTest3 {
                 proposerM2.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
                 proposerM3.connectToOthers(acceptorIds[i], "localhost", startingPort + i);
             }
+            //*************************************************//
 
             // Create threads to propose concurrently
             Thread proposerThread1 = new Thread(() -> {
@@ -50,6 +57,8 @@ public class ImmediateResponseTest3 {
             proposerThread1.start();
             proposerThread2.start();
             proposerThread3.start();
+
+            // allow execution
             Thread.sleep(3000);
 
             // Wait for all threads to finish
@@ -57,6 +66,8 @@ public class ImmediateResponseTest3 {
             proposerThread2.join();
             proposerThread3.join();
 
+            //releasing ports
+            System.out.println("RELEASING PORTS");
             proposerM1.close();
             proposerM2.close();
             proposerM3.close();
@@ -64,6 +75,11 @@ public class ImmediateResponseTest3 {
             for (Acceptor acceptor : acceptors) {
                 acceptor.close();
             }
+
+            //LOGGING COMPLETION
+            System.out.println("##################################");
+            System.out.println("TEST 1.C COMPLETED");
+            System.out.println("##################################");
 
 
         } catch (IOException | InterruptedException e) {
