@@ -105,7 +105,8 @@ _______
 > - M2 and M3 shuts down concurrently.
 > - M1 will retry with higher proposalID and win.
 > - To test this, run:
-> -       java ShutdownTest3  
+> -       java ShutdownTest3
+> - **EXPECTED OUTPUT: M1 should win.** 
 
 
 >### Test 3.d: Three concurrent proposers, varying shutdown
@@ -113,6 +114,7 @@ _______
 > - M3 shuts down first, then 5 seconds later M2 shuts down. This is to show the beahviour of failover when they shut down at different times.
 > - To test this, run:
 > -       java ShutdownTest4
+> -  **EXPECTED OUTPUT: M1 should win.** 
 
 **Criteria reached:**
 - [x] Paxos implementation works with suggested profiles and when either M2 or M2 goes offline.
