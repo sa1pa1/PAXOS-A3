@@ -108,7 +108,7 @@ public class ShutdownTest2 {
                     } catch (IOException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
-                }, 500, TimeUnit.MILLISECONDS);
+                }, 800, TimeUnit.MILLISECONDS);
             });
 
             //Allow execution

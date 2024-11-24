@@ -22,13 +22,14 @@ public class DelayBehaviour {
                 double randomValue = Math.random();
                 if (randomValue < 0.3) {
                     System.out.println(memberId + " is not responding. Maybe camping :))");
+                    return;
                 }
                 else {
                     simulateSmallDelay(memberId);
                 }
             } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
                 // M4-M9: Simulate busy schedules
-                simulateSmallDelay(memberId);
+                simulateBusySchedule(memberId);
             }
         } catch (InterruptedException e) {
             System.out.println("Error: " + e.getMessage());
@@ -36,15 +37,21 @@ public class DelayBehaviour {
     }
 
     private static void simulateLargeDelay(String memberId) throws InterruptedException {
-        int delay = 7000 + new Random().nextInt(2000); // Delay between 4 and 9 seconds
+        int delay = 10000 + new Random().nextInt(5000); // Delay between 15 and 20 seconds
         System.out.println(memberId + " Very delayed, in the hills");
         Thread.sleep(delay);
     }
 
 
     private static void simulateSmallDelay(String memberId) throws InterruptedException {
-        int delay = 1000 + new Random().nextInt(2000); // Delay between 1 and 3 seconds
-        System.out.println(memberId + " delaying response due to busy schedule...");
+        int delay = 2000 + new Random().nextInt(3000); // Delay between 2 and 5 seconds
+        System.out.println(memberId + " delayed connection...");
+        Thread.sleep(delay);
+    }
+
+    private static void simulateBusySchedule(String memberId) throws InterruptedException {
+        int delay = 3000 + new Random().nextInt(3000); //delays between 3-6 seconds
+        System.out.println(memberId + " is delayed due to busy schedule...");
         Thread.sleep(delay);
     }
 }
