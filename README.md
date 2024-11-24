@@ -40,8 +40,8 @@ _______
 ## Test 2: Members with suggested delay profiles
 > [!NOTE]  
 > Acceptor.java, Proposer.java and Paxosmember.java assumes no delay to members. Providing immediate responses.
-> The delay is then integrated into the testing as follow:
-> 
+> The delay is then integrated into the testing by calling the class `DelayBehaviour.java` on members. Delay profiles are as follow:  
+
 >> M1 respond immediately, no delay.
 >
 >> M2 sometimes (< 30% of time) is at cafe, and 70% is at home where connection is largely delayed. This is  simulated using `SimulateLargeDelay(String memberId)`, where it delays 4 to 9 seconds.
