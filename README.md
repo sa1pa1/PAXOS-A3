@@ -99,9 +99,8 @@ _______
 > > If M2 retries later than M1, M2 wins
 > > 
 > Notably, it is possible when M1 retries first and has lower proposalID than M2.
-> Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID.
+> Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID. In Paxos, a lower proposal ID can win if it receives the majority of promises and successfully proceeds through the accept phase before competing proposals with higher IDs complete the process.
 >>
-
 > - To test this, run:  
 > -       java ShutdownTest2   
 
