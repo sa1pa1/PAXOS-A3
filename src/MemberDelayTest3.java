@@ -92,7 +92,7 @@ public class MemberDelayTest3 {
             proposerM3.propose();
 
             // allow execution
-            Thread.sleep(10000);
+            Thread.sleep(15000);
 
             //releasing ports
             System.out.println("RELEASING PORTS");

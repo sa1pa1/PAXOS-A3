@@ -8,7 +8,8 @@ public class DelayBehaviour {
                 System.out.println(memberId + " is responding immediately.");
             } else if ("M2".equals(memberId)) {
                 // M2: Poor connectivity with occasional instant response
-                if (Math.random() < 0.3) {
+                double randomValue = Math.random();
+                if (randomValue < 0.3) {
                     // Simulate being at the café with instant responses
                     System.out.println(memberId + " is responding instantly (at café).");
                 } else {
@@ -18,10 +19,11 @@ public class DelayBehaviour {
 
             } else if ("M3".equals(memberId)) {
                 // M3: High chance of dropping messages
-                if (NoResponse()) {
+                double randomValue = Math.random();
+                if (randomValue < 0.3) {
                     System.out.println(memberId + " is not responding. Maybe camping :))");
                 }
-                else if (!NoResponse()) {
+                else {
                     simulateSmallDelay(memberId);
                 }
             } else if (memberId.startsWith("M") && Integer.parseInt(memberId.substring(1)) >= 4) {
@@ -34,16 +36,11 @@ public class DelayBehaviour {
     }
 
     private static void simulateLargeDelay(String memberId) throws InterruptedException {
-        int delay = 4000 + new Random().nextInt(5000); // Delay between 4 and 9 seconds
+        int delay = 7000 + new Random().nextInt(2000); // Delay between 4 and 9 seconds
         System.out.println(memberId + " Very delayed, in the hills");
         Thread.sleep(delay);
     }
 
-
-    private static boolean NoResponse() {
-        // 30% chance to drop the message
-        return Math.random() < 0.3;
-    }
 
     private static void simulateSmallDelay(String memberId) throws InterruptedException {
         int delay = 1000 + new Random().nextInt(2000); // Delay between 1 and 3 seconds
