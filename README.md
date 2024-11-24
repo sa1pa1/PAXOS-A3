@@ -44,13 +44,13 @@ _______
 
 >> M1 respond immediately, no delay.
 >
->> M2 sometimes (< 30% of time) is at cafe, and 70% is at home where connection is largely delayed. This is  simulated using `SimulateLargeDelay(String memberId)`, where it delays 7 - 9 seconds.
+>> M2 sometimes (< 30% of time) is at cafe, and 70% is at home where connection is largely delayed. This is  simulated using `SimulateLargeDelay(String memberId)`, where it delays 10 - 15 seconds.
 >
 >> M3 is not as slow as M2, but not as fast as M1. This is simulated using `simulateSmallDelay(String memberId)`
->> where it delays messages between 1 to 3 seconds.  
+>> where it delays messages between 2 - 5 seconds.  
 >> Sometimes, M3 is camping (< 30% of time), the message is dropped and doesnt respond at all. 
 >
->> M4 - M9 have busy schedule, so their delay is simulated using `simulateSmallDelay(String memberId)`, delaying between 1-3 seconds.
+>> M4 - M9 have busy schedule, so their delay is simulated using `simulateBusySchedule(String memberId)`, delaying between 3-6 seconds.
 
 > ### Test 2.a: One proposer
 > - This test applies the suggested delay profiles to all member. Then have M1 proposes to visualise how the delay profiles behave.  
