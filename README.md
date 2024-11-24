@@ -65,7 +65,7 @@ _______
 > -       java MemberDelayTest2
 > - **(Run this test at least 3 times to see the different outcomes).**  
 
-> ### Test 2.c: Concurrent: Three proposers
+> ### Test 2.c: Concurrent: Three proposers (extension test) 
 > In this test, M1, M2 and M3 are proposers (simulating the given scenario). This test again, gives the one with highest delay (in this case M2) with highest proposalID, then M3 and lowest is M1.  
 >> This test will show that M1, M2 and M3 have differing chances of winning:
 >> - If M2 is in the adelaide hills and M3 is not camping, then M3 will win.  
@@ -92,7 +92,7 @@ _______
 > -       java ShutdownTest1  
 >   **EXPECTED OUTPUT: M1 should win.**
 
->### Test 3.b: Three concurrent proposers, one shuts down
+>### Test 3.b: Three concurrent proposers, one shuts down (extension test) 
 > - In this test, we have 3 proposers, M1, M2 and M3. M3 has the highest proposalID.
 > - When M3 shuts down, M1 and M2 will propose new proposal ID.
 > > If M1 retries later than M2, M1 wins  
@@ -104,7 +104,7 @@ _______
 > - To test this, run:  
 > -       java ShutdownTest2   
 
->### Test 3.c: Three concurrent proposers, two shuts down
+>### Test 3.c: Three concurrent proposers, two shuts down (extension test)
 > - In this test, we have 3 proposers, M1, M2 and M3.
 > - M2 and M3 shuts down concurrently.
 > - M1 will retry with higher proposalID and win.
@@ -113,7 +113,7 @@ _______
 > - **EXPECTED OUTPUT: M1 should win.** 
 
 
->### Test 3.d: Three concurrent proposers, varying shutdown
+>### Test 3.d: Three concurrent proposers, varying shutdown (extension test)
 > - In this test, we have 3 proposers, M1, M2 and M3.
 > - M3 shuts down first, then 5 seconds later M2 shuts down. This is to show the beahviour of failover when they shut down at different times.
 > - To test this, run:
