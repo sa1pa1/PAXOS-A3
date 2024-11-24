@@ -11,7 +11,7 @@ This is a Paxos implementation that utilises three classes
       (immediate response, small delay, large delay and no response)
 - [x] Paxos implementation works with suggested profiles and when either M2 or M2 goes offline.
 _______
-## Test 1: Implementations works for immediate responses  
+## Test 1: Implementations work for immediate responses  
 > [!NOTE]  
 > Acceptor.java, Proposer.java and Paxosmember.java assumes no delay to members. Providing immediate responses.
 
@@ -40,11 +40,11 @@ _______
 ## Test 2: Members with suggested delay profiles
 > [!NOTE]  
 > Acceptor.java, Proposer.java and Paxosmember.java assumes no delay to members. Providing immediate responses.
-> The delay is then integrated into the testing as follow:
-> 
+> The delay is then integrated into the testing by calling the class `DelayBehaviour.java` on members. Delay profiles are as follow:  
+
 >> M1 respond immediately, no delay.
 >
->> M2 sometimes (< 30% of time) is at cafe, and 70% is at home where connection is largely delayed. This is  simulated using `SimulateLargeDelay(String memberId)`, where it delays 4 to 9 seconds.
+>> M2 sometimes (< 30% of time) is at cafe, and 70% is at home where connection is largely delayed. This is  simulated using `SimulateLargeDelay(String memberId)`, where it delays 7 - 9 seconds.
 >
 >> M3 is not as slow as M2, but not as fast as M1. This is simulated using `simulateSmallDelay(String memberId)`
 >> where it delays messages between 1 to 3 seconds.  
@@ -69,7 +69,7 @@ _______
 > In this test, M1, M2 and M3 are proposers (simulating the given scenario). This test again, gives the one with highest delay (in this case M2) with highest proposalID, then M3 and lowest is M1.  
 >> This test will show that M1, M2 and M3 have differing chances of winning:
 >> - If M2 is in the adelaide hills and M3 is not camping, then M3 will win.  
->> - If M2 is at the cafe, M2 will win regardless where M3 is, M2 will win.  
+>> - If M2 is at the cafe, M2 will win regardless of where M3 is, M2 will win.  
 >> - If both M2 is in the hills and M3 is camping, M1 will win despite having the smallest proposalID.  
 >
 > To test this, run:  
@@ -99,9 +99,8 @@ _______
 > > If M2 retries later than M1, M2 wins
 > > 
 > Notably, it is possible when M1 retries first and has lower proposalID than M2.
-> Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID.
+> Due to the known suggest delay profile, M2 connections may delay causing M1 to win. M2 will not always win in cases where it has higher proposalID. In Paxos, a lower proposal ID can win if it receives the majority of promises and successfully proceeds through the accept phase before competing proposals with higher IDs complete the process.
 >>
-
 > - To test this, run:  
 > -       java ShutdownTest2   
 
@@ -127,4 +126,6 @@ _______
 
 
 # END OF TESTING. THANK YOU :))
+## A PDF is provided to show the outputs of each test. "TEST-OUTPUTS".  
+## Note that all tests, with varying delays can lead to different scenarios. The main focus is that they are able to correctly reach a consensus. 
 
