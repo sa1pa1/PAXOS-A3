@@ -48,7 +48,7 @@ _______
 >
 >> M3 is not as slow as M2, but not as fast as M1. This is simulated using `simulateSmallDelay(String memberId)`
 >> where it delays messages between 1 to 3 seconds.  
->> Sometimes, M3 is camping (< 30% of time), the message is dropped. Simulated using  `NoResponse()`.
+>> Sometimes, M3 is camping (< 30% of time), the message is dropped and doesnt respond at all. 
 >
 >> M4 - M9 have busy schedule, so their delay is simulated using `simulateSmallDelay(String memberId)`, delaying between 1-3 seconds.
 
