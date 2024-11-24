@@ -76,7 +76,7 @@ public class MemberDelayTest2 {
             proposerM2.propose();
 
             // allow execution
-            Thread.sleep(8000);
+            Thread.sleep(15000);
 
             //releasing ports
             System.out.println("RELEASING PORTS");
