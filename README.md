@@ -68,8 +68,8 @@ _______
 > ### Test 2.c: Concurrent: Two proposers (M2 and M3) 
 > - In this test, M2 and M3 are proposers. This test not only studies the behaviour of paxos protocol favouring higher proposal ID but also the effects of delays on which member will win.
 > - M2 has a higher proposal ID than M3 in this test.  
-> -  CASE 1: Due to M2's delay, M3 has a chance at winning despite M3 having small delays.  
-> -  CASE 2: If M2 is at cafe or M3 is not responding, M2 has a chance at winning.
+> -  **CASE 1:** Due to M2's delay, M3 has a chance at winning despite M3 having small delays.  
+> -  **CASE 2:** If M2 is at cafe or M3 is not responding, M2 has a chance at winning.
 > -  HOWEVER, Randomised delays in the simulation mean that the "expected" outcomes do not always occur. For example, M2 may occasionally overcome large delays if acceptors respond favorably or M3's delays accumulate due to network conditions. Both M2 and M3 have valid chances of winning depending on how delays, acceptor responses, and timing play out.  
 > -  To test this, run:
 > -       java MemberDelayTest3   
