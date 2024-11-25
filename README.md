@@ -9,7 +9,7 @@ This is a Paxos implementation that utilises three classes
 - [x] Paxos implementation works in the case where all M1-M9 have immediate responses to voting queries
 - [x] Paxos implementation works when M1 – M9 have responses to voting queries suggested by several profiles  
       (immediate response, small delay, large delay and no response)
-- [x] Paxos implementation works with suggested profiles and when either M2 or M2 goes offline.
+- [x] Paxos implementation works with suggested profiles and when either M2 or M3 goes offline.
 _______
 ## Test 1: Implementations work for immediate responses  
 > [!NOTE]  
@@ -121,7 +121,7 @@ _______
 > -  **EXPECTED OUTPUT: M1 should win.** 
 
 **Criteria reached:**
-- [x] Paxos implementation works with suggested profiles and when either M2 or M2 goes offline.
+- [x] Paxos implementation works with suggested profiles and when either M2 or M3 goes offline.
 - [x] Paxos implementation works when two councillors send voting proposals at the same time
 
 
