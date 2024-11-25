@@ -60,17 +60,17 @@ _______
 
 > ### Test 2.b: Concurrent: Two proposers
 > - In this test, M1 and M2 are proposers. This test not only studies the behaviour of paxos protocol favouring higher proposal ID but also the effects of delays on which member will win.
-> - M2 has a higher proposal ID than M1 in this test. However, only 30% of time will M2 win due to its delays despite having higher proposal ID.
+> - M2 has a higher proposal ID than M1 in this test. However, due to its delay M1 can win. 
 > - To test this, run:
 > -       java MemberDelayTest2
 > - **(Run this test at least 3 times to see the different outcomes).**  
 
 > ### Test 2.c: Concurrent: Three proposers (extension test) 
 > In this test, M1, M2 and M3 are proposers (simulating the given scenario). This test again, gives the one with highest delay (in this case M2) with highest proposalID, then M3 and lowest is M1.  
->> This test will show that M1, M2 and M3 have differing chances of winning:
->> - If M2 is in the adelaide hills and M3 is not camping, then M3 will win.  
->> - If M2 is at the cafe, M2 will win regardless of where M3 is, M2 will win.  
->> - If both M2 is in the hills and M3 is camping, M1 will win despite having the smallest proposalID.  
+>> This test will show that M1, M2 and M3 have differing chances of winning due to its delay
+>> - If M2 is in the adelaide hills and M3 is not camping, then M3 has a chance at winning.  
+>> - If M2 is at the cafe, M2 will win regardless of where M3 is, M2 has a chance at winning.   
+>> - If both M2 is in the hills and M3 is camping or delayed, M1 has a chance at winning despite having the smallest proposalID.  
 >
 > To test this, run:  
 > -       java MemberDelayTest3   
