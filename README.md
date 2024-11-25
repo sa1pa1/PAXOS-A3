@@ -115,7 +115,7 @@ _______
 
 >### Test 3.d: Three concurrent proposers, varying shutdown (extension test)
 > - In this test, we have 3 proposers, M1, M2 and M3.
-> - M3 shuts down first, then 5 seconds later M2 shuts down. This is to show the beahviour of failover when they shut down at different times.
+> - M3 shuts down first, then 3 seconds later M2 shuts down. This is to show the beahviour of failover when they shut down at different times.
 > - To test this, run:
 > -       java ShutdownTest4
 > -  **EXPECTED OUTPUT: M1 should win.** 
