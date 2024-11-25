@@ -127,5 +127,4 @@ _______
 
 # END OF TESTING. THANK YOU :))
 ## A PDF is provided to show the outputs of each test. "TEST-OUTPUTS".  
-## Note that all tests, with varying delays can lead to different scenarios. The main focus is that they are able to correctly reach a consensus. 
 
